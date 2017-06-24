@@ -15,6 +15,11 @@ control 'ntp-1.0' do                        # A unique ID for this control
       its('content') { should match 'restrict default kod nomodify notrap nopeer noquery' }
       its('content') { should match 'includefile /private/etc/ntp.conf' }
     end
+  elsif os.redhat?
+    describe file('/etc/ntp.conf') do
+      it { should be_file }
+      its('content') { should match 'restrict default nomodify nopeer notrap noquery' }
+    end
   else
     describe file('/etc/ntp.conf') do
       it { should be_file }
@@ -55,8 +60,13 @@ control 'ntp-3.0' do
       it { should be_owned_by 'root' }
       its('mode') { should cmp '0644' }
     end
+  elsif os.redhat?
+    describe file('/var/lib/ntp/drift') do
+      it { should be_file }
+      it { should be_owned_by 'ntp' }
+      its('mode') { should cmp '0640' }
+    end
   else
-## redhat
     describe file('/var/ntp/drift/ntp.drift') do
       it { should be_file }
       it { should be_owned_by 'ntp' }
