@@ -4,7 +4,6 @@
 
 title 'ntp section'
 
-
 control 'ntp-1.0' do                        # A unique ID for this control
   impact 0.7                                # The criticality, if this control fails.
   title 'ntpd should be present'
@@ -81,7 +80,6 @@ control 'ntp-4.0' do
   desc 'Ensure ntpd drift file is updated and less than 4h in the past'
   describe file('/var/log/system.log').mtime.to_i do
     it { should <= Time.now.to_i }
-    it { should >= Time.now.to_i - 14400}
+    it { should >= Time.now.to_i - 14400 }
   end
 end
-
