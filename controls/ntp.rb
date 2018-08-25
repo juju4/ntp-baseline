@@ -60,7 +60,7 @@ control 'ntp-3.0' do
       it { should be_owned_by 'root' }
       its('mode') { should cmp '0644' }
     end
-  elsif os.ubuntu?
+  elsif os.debian?
     describe file('/var/lib/ntp/drift') do
       it { should be_file }
       it { should be_owned_by 'ntp' }
