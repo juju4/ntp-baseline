@@ -18,12 +18,12 @@ control 'ntp-1.0' do                        # A unique ID for this control
   elsif os.redhat?
     describe file('/etc/ntp.conf') do
       it { should be_file }
-      its('content') { should match(/restrict.*default.*nomodify (notrap nopeer|nopeer notrap) noquery/) }
+      its('content') { should match(/^restrict.*default.*nomodify (notrap nopeer|nopeer notrap) noquery/) }
     end
   else
     describe file('/etc/ntp.conf') do
       it { should be_file }
-      its('content') { should match(/restrict.*default.*nomodify (notrap nopeer|nopeer notrap) noquery/) }
+      its('content') { should match(/^restrict.*default.*nomodify (notrap nopeer|nopeer notrap) noquery/) }
     end
   end
   describe file('/usr/sbin/ntpd') do
