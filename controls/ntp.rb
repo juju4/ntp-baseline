@@ -1,4 +1,5 @@
 # encoding: utf-8
+
 # copyright: 2015, The Authors
 # license: All rights reserved
 
@@ -59,7 +60,7 @@ control 'ntp-3.0' do
       it { should be_owned_by 'root' }
       its('mode') { should cmp '0644' }
     end
-  elsif os.redhat?
+  elsif os.ubuntu?
     describe file('/var/lib/ntp/drift') do
       it { should be_file }
       it { should be_owned_by 'ntp' }
