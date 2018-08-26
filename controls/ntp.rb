@@ -37,6 +37,7 @@ control 'ntp-2.0' do
   impact 0.7
   title 'ntpd should be running'
   desc 'Ensure ntpd is running'
+  only_if { !(virtualization.role == 'guest' && virtualization.system == 'docker') }
   if os.darwin?
     describe processes('ntpd') do
       its('users') { should eq ['root'] }
