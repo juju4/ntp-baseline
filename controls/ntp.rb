@@ -55,6 +55,7 @@ control 'ntp-3.0' do
   impact 0.7
   title 'ntpd should have drift file'
   desc 'Ensure ntpd drift file is present'
+  only_if { !(virtualization.role == 'guest' && virtualization.system == 'docker') }
   if os.darwin?
     describe file('/var/db/ntp.drift') do
       it { should be_file }
@@ -80,6 +81,7 @@ control 'ntp-4.0' do
   impact 0.7
   title 'ntpd updated log files'
   desc 'Ensure ntpd drift file is updated and less than 4h in the past'
+  only_if { !(virtualization.role == 'guest' && virtualization.system == 'docker') }
   describe file('/var/log/system.log').mtime.to_i do
     it { should <= Time.now.to_i }
     it { should >= Time.now.to_i - 14400 }
