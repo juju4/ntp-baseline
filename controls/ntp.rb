@@ -26,8 +26,9 @@ if ntp_package.to_s == 'ntp'
     ntp_user = 'root'
     ntp_drift = '/var/ntp/drift/ntp.drift'
   elsif os.debian?
+    ntp_conf = '/etc/ntp.conf'
     ntp_user = 'ntp'
-    ntp_conf = '/var/lib/ntp/drift'
+    ntp_drift = '/var/lib/ntp/drift'
   end
 elsif ntp_package.to_s == 'openntpd'
   ntp_conf = '/etc/openntpd/ntpd.conf'
