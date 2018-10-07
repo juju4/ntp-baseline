@@ -113,8 +113,6 @@ control 'ntp-2.0' do
   end
 end
 
-end
-
 control 'ntp-2.0' do
   impact 0.7
   title 'ntpd should be running'
