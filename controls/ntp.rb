@@ -12,7 +12,7 @@ ntp_servers = attribute(
   description: 'list of ntp servers to use'
 )
 
-if "#{ntp_package}" == 'ntpd' do
+if "#{ntp_package}" == 'ntpd'
   ntp_service = 'ntpd'
   ntp_bin = '/usr/sbin/ntpd'
   ntp_drift_mode = '0640'
@@ -29,7 +29,7 @@ if "#{ntp_package}" == 'ntpd' do
     ntp_user = 'ntp'
     ntp_conf = '/var/lib/ntp/drift'
   end
-elsif "#{ntp_package}" == 'openntpd' do
+elsif "#{ntp_package}" == 'openntpd'
   ntp_conf = '/etc/openntpd/ntpd.conf'
   ntp_user = 'ntpd'
   ntp_service = 'openntpd'
