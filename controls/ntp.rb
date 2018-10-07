@@ -12,7 +12,7 @@ ntp_servers = attribute(
   description: 'list of ntp servers to use'
 )
 
-if ntp_package.to_s == 'ntpd'
+if ntp_package.to_s == 'ntp'
   ntp_service = 'ntpd'
   ntp_bin = '/usr/sbin/ntpd'
   ntp_drift_mode = '0640'
@@ -40,7 +40,7 @@ end
 
 title 'ntp section'
 
-if ntp_package.to_s == 'ntpd' && os.darwin?
+if ntp_package.to_s == 'ntp' && os.darwin?
   control 'ntp-1.1' do                        # A unique ID for this control
     impact 0.7                                # The criticality, if this control fails.
     title 'ntpd/darwin should be present'
@@ -64,7 +64,7 @@ if ntp_package.to_s == 'ntpd' && os.darwin?
       it { should be_owned_by 'root' }
     end
   end
-elsif ntp_package.to_s == 'ntpd'
+elsif ntp_package.to_s == 'ntp'
   control 'ntp-1.2' do
     impact 0.7
     title 'ntpd should be present'
@@ -78,7 +78,7 @@ elsif ntp_package.to_s == 'ntpd'
       its('content') { should match(/^(restrict -6 ::1|restrict ::1)/) }
       ntp_servers.each do |server|
         its('content') { should match(/^server #{server}/) }
-        its('content') { should match(/^restrict #{server} default.*nomodify (notrap nopeer|nopeer notrap) noquery/) }
+        its('content') { should match(/^restrict #{server} nomodify (notrap nopeer|nopeer notrap) noquery/) }
       end
     end
     describe package(ntp_package.to_s) do
@@ -127,7 +127,7 @@ control 'ntp-2.0' do
   impact 0.7
   title 'ntpd configuration should be valid'
   desc 'Ensure ntpd configuration is correct'
-  if ntp_package.to_s == 'ntpd'
+  if ntp_package.to_s == 'ntp'
     describe command('ntpstat') do
       its('stdout') { should match 'synchronised to' }
       its('stderr') { should eq '' }
