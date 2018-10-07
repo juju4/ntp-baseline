@@ -40,17 +40,35 @@ end
 
 title 'ntp section'
 
-control 'ntp-1.0' do                        # A unique ID for this control
-  impact 0.7                                # The criticality, if this control fails.
-  title 'ntpd should be present'
-  desc 'Ensure ntpd executable and configuration are present'
-  if ntp_package.to_s == 'ntpd' && os.darwin?
+if ntp_package.to_s == 'ntpd' && os.darwin?
+  control 'ntp-1.1' do                        # A unique ID for this control
+    impact 0.7                                # The criticality, if this control fails.
+    title 'ntpd/darwin should be present'
+    desc 'Ensure ntpd executable and configuration are present'
     describe file(ntp_conf.to_s) do
       it { should be_file }
       its('content') { should match(/restrict default (kod nomodify notrap nopeer noquery|ignore)/) }
       its('content') { should match 'includefile /private/etc/ntp.conf' }
     end
-  elsif ntp_package.to_s == 'ntpd'
+    describe package(ntp_package.to_s) do
+      it { should be_installed }
+    end
+    describe service(ntp_service.to_s) do
+      it { should_not be_enabled }
+      it { should_not be_installed }
+      it { should_not be_running }
+    end
+    describe file(ntp_bin.to_s) do
+      it { should be_file }
+      it { should be_executable }
+      it { should be_owned_by 'root' }
+    end
+  end
+elsif ntp_package.to_s == 'ntpd'
+  control 'ntp-1.2' do
+    impact 0.7
+    title 'ntpd should be present'
+    desc 'Ensure ntpd executable and configuration are present'
     describe file(ntp_conf.to_s) do
       it { should be_file }
       its('content') { should match(/^disable monitor/) }
@@ -63,15 +81,6 @@ control 'ntp-1.0' do                        # A unique ID for this control
         its('content') { should match(/^restrict #{server} default.*nomodify (notrap nopeer|nopeer notrap) noquery/) }
       end
     end
-  elsif ntp_package.to_s == 'openntpd'
-    describe file(ntp_conf.to_s) do
-      it { should be_file }
-      its('content') { should match(/^listen on 127.0.0.1/) }
-      ntp_servers.each do |server|
-        its('content') { should match(/^servers #{server}/) }
-      end
-    end
-  else
     describe package(ntp_package.to_s) do
       it { should be_installed }
     end
@@ -80,11 +89,37 @@ control 'ntp-1.0' do                        # A unique ID for this control
       it { should_not be_installed }
       it { should_not be_running }
     end
+    describe file(ntp_bin.to_s) do
+      it { should be_file }
+      it { should be_executable }
+      it { should be_owned_by 'root' }
+    end
   end
-  describe file(ntp_bin.to_s) do
-    it { should be_file }
-    it { should be_executable }
-    it { should be_owned_by 'root' }
+elsif ntp_package.to_s == 'openntpd'
+  control 'ntp-1.3' do
+    impact 0.7
+    title 'openntpd should be present'
+    desc 'Ensure openntpd executable and configuration are present'
+    describe file(ntp_conf.to_s) do
+      it { should be_file }
+      its('content') { should match(/^listen on 127.0.0.1/) }
+      ntp_servers.each do |server|
+        its('content') { should match(/^servers #{server}/) }
+      end
+    end
+    describe package(ntp_package.to_s) do
+      it { should be_installed }
+    end
+    describe service(ntp_service.to_s) do
+      it { should_not be_enabled }
+      it { should_not be_installed }
+      it { should_not be_running }
+    end
+    describe file(ntp_bin.to_s) do
+      it { should be_file }
+      it { should be_executable }
+      it { should be_owned_by 'root' }
+    end
   end
 end
 
