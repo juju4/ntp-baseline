@@ -21,14 +21,17 @@ if ntp_package.to_s == 'ntp'
     ntp_user = 'root'
     ntp_drift = '/var/db/ntp.drift'
     ntp_drift_mode = '0644'
+    ntp_drift_user = 'root'
   elsif os.redhat?
     ntp_conf = '/etc/ntp.conf'
-    ntp_user = 'root'
+    ntp_user = 'ntp'
     ntp_drift = '/var/ntp/drift/ntp.drift'
+    ntp_drift_user = 'ntp'
   elsif os.debian?
     ntp_conf = '/etc/ntp.conf'
     ntp_user = 'ntp'
     ntp_drift = '/var/lib/ntp/drift'
+    ntp_drift_user = 'ntp'
   end
 elsif ntp_package.to_s == 'openntpd'
   ntp_conf = '/etc/openntpd/ntpd.conf'
@@ -37,6 +40,7 @@ elsif ntp_package.to_s == 'openntpd'
   ntp_bin = '/usr/sbin/openntpd'
   ntp_drift = '/var/lib/openntpd/db/ntpd.drift'
   ntp_drift_mode = '0644'
+  ntp_drift_user = 'root'
 end
 
 title 'ntp section'
@@ -77,18 +81,14 @@ elsif ntp_package.to_s == 'ntp'
       its('content') { should match(/^(restrict -6 default ignore|restrict -6 default kod notrap nomodify nopeer noquery limited)/) }
       its('content') { should match(/^restrict 127.0.0.1/) }
       its('content') { should match(/^(restrict -6 ::1|restrict ::1)/) }
-      ntp_servers.each do |server|
-        its('content') { should match(/^server #{server}/) }
-        its('content') { should match(/^restrict #{server} nomodify (notrap nopeer|nopeer notrap) noquery/) }
-      end
     end
     describe package(ntp_package.to_s) do
       it { should be_installed }
     end
     describe service(ntp_service.to_s) do
-      it { should_not be_enabled }
-      it { should_not be_installed }
-      it { should_not be_running }
+      it { should be_enabled }
+      it { should be_installed }
+      it { should be_running }
     end
     describe file(ntp_bin.to_s) do
       it { should be_file }
@@ -103,7 +103,7 @@ elsif ntp_package.to_s == 'openntpd'
     desc 'Ensure openntpd executable and configuration are present'
     describe file(ntp_conf.to_s) do
       it { should be_file }
-      its('content') { should match(/^listen on 127.0.0.1/) }
+      its('content') { should_not match(/^listen on 127.0.0.1/) }
       ntp_servers.each do |server|
         its('content') { should match(/^servers #{server}/) }
       end
@@ -167,7 +167,7 @@ control 'ntp-3.0' do
   only_if { !(virtualization.role == 'guest' && virtualization.system == 'docker') }
   describe file(ntp_drift.to_s) do
     it { should be_file }
-    it { should be_owned_by ntp_user.to_s }
+    it { should be_owned_by ntp_drift_user.to_s }
     its('mode') { should cmp ntp_drift_mode.to_s }
   end
 end
