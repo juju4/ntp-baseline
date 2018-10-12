@@ -23,11 +23,13 @@ if ntp_package.to_s == 'ntp'
     ntp_drift_mode = '0644'
     ntp_drift_user = 'root'
   elsif os.redhat?
+    ntp_service = 'ntpd'
     ntp_conf = '/etc/ntp.conf'
     ntp_user = 'ntp'
     ntp_drift = '/var/ntp/drift/ntp.drift'
     ntp_drift_user = 'ntp'
   elsif os.debian?
+    ntp_service = 'ntp'
     ntp_conf = '/etc/ntp.conf'
     ntp_user = 'ntp'
     ntp_drift = '/var/lib/ntp/drift'
