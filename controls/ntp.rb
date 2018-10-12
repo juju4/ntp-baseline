@@ -59,9 +59,9 @@ if ntp_package.to_s == 'ntp' && os.darwin?
       it { should be_installed }
     end
     describe service(ntp_service.to_s) do
-      it { should_not be_enabled }
-      it { should_not be_installed }
-      it { should_not be_running }
+      it { should be_enabled }
+      it { should be_installed }
+      it { should be_running }
     end
     describe file(ntp_bin.to_s) do
       it { should be_file }
@@ -112,9 +112,9 @@ elsif ntp_package.to_s == 'openntpd'
       it { should be_installed }
     end
     describe service(ntp_service.to_s) do
-      it { should_not be_enabled }
-      it { should_not be_installed }
-      it { should_not be_running }
+      it { should be_enabled }
+      it { should be_installed }
+      it { should be_running }
     end
     describe file(ntp_bin.to_s) do
       it { should be_file }
