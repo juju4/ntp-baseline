@@ -155,7 +155,7 @@ control 'ntp-2.0' do
   impact 0.7
   title 'ntpd should be running'
   desc 'Ensure ntpd is running'
-  only_if { !(virtualization.role == 'guest' && virtualization.system == 'docker') }
+  only_if { !(virtualization.role == 'guest' && (virtualization.system == 'docker' || virtualization.system == 'lxd')) }
   describe processes(ntp_service.to_s) do
     its('users') { should eq [ntp_user.to_s] }
     its('list.length') { should eq 1 }
@@ -166,7 +166,7 @@ control 'ntp-3.0' do
   impact 0.7
   title 'ntpd should have drift file'
   desc 'Ensure ntpd drift file is present'
-  only_if { !(virtualization.role == 'guest' && virtualization.system == 'docker') }
+  only_if { !(virtualization.role == 'guest' && (virtualization.system == 'docker' || virtualization.system == 'lxd')) }
   describe file(ntp_drift.to_s) do
     it { should be_file }
     it { should be_owned_by ntp_drift_user.to_s }
@@ -178,7 +178,7 @@ control 'ntp-4.0' do
   impact 0.7
   title 'ntpd updated drift files'
   desc 'Ensure ntpd drift file is updated and less than 8h in the past'
-  only_if { !(virtualization.role == 'guest' && virtualization.system == 'docker') }
+  only_if { !(virtualization.role == 'guest' && (virtualization.system == 'docker' || virtualization.system == 'lxd')) }
   describe file(ntp_drift.to_s).mtime.to_i do
     it { should <= Time.now.to_i }
     it { should >= Time.now.to_i - 28800 }
