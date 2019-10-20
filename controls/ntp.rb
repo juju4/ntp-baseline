@@ -12,7 +12,7 @@ ntp_servers = attribute(
   description: 'list of ntp servers to use'
 )
 
-if os.redhat? && os.release == '8'
+if os.redhat? && os.release.match(/^8\./)
   ntp_package = 'chrony'
   ntp_service = 'chronyd'
   ntp_bin = '/usr/sbin/chronyd'
