@@ -163,11 +163,11 @@ elsif ntp_package.to_s == 'chrony'
   end
 end
 
-control 'ntp-2.0' do
-  impact 0.7
-  title 'ntpd configuration should be valid'
-  desc 'Ensure ntpd configuration is correct'
-  if ntp_package.to_s == 'ntp'
+if ntp_package.to_s == 'ntp'
+  control 'ntp-2.1' do
+    impact 0.7
+    title 'ntpd configuration should be valid'
+    desc 'Ensure ntpd configuration is correct'
     describe command('ntpstat') do
       its('stdout') { should match 'synchronised to' }
       its('stderr') { should eq '' }
@@ -179,7 +179,12 @@ control 'ntp-2.0' do
       its('stderr') { should eq '' }
       its('exit_status') { should eq 0 }
     end
-  elsif ntp_package.to_s == 'chrony'
+  end
+elsif ntp_package.to_s == 'chrony'
+  control 'ntp-2.2' do
+    impact 0.7
+    title 'chrony configuration should be valid'
+    desc 'Ensure chrony configuration is correct'
     describe command('ntpstat') do
       its('stdout') { should match 'synchronised to' }
       its('stderr') { should eq '' }
@@ -197,7 +202,12 @@ control 'ntp-2.0' do
       its('stderr') { should eq '' }
       its('exit_status') { should eq 0 }
     end
-  elsif ntp_package.to_s == 'openntpd'
+  end
+elsif ntp_package.to_s == 'openntpd'
+  control 'ntp-2.3' do
+    impact 0.7
+    title 'openntpd configuration should be valid'
+    desc 'Ensure opentpd configuration is correct'
     describe command("#{ntp_bin} -n") do
       its('stdout') { should eq '' }
       its('stderr') { should eq 'configuration OK' }
