@@ -107,18 +107,23 @@ elsif ntp_package.to_s == 'ntp'
       it { should be_enabled }
       it { should be_installed }
     end
-    describe service(ntp_service.to_s) do
-      only_if { !container_execution }
-      it { should be_running }
-    end
     describe file(ntp_bin.to_s) do
       it { should be_file }
       it { should be_executable }
       it { should be_owned_by 'root' }
     end
   end
-elsif ntp_package.to_s == 'openntpd'
   control 'ntp-1.3' do
+    impact 0.7
+    title 'ntpd should be running'
+    desc 'Ensure ntpd is running'
+    only_if { !container_execution }
+    describe service(ntp_service.to_s) do
+      it { should be_running }
+    end
+  end
+elsif ntp_package.to_s == 'openntpd'
+  control 'ntp-1.2' do
     impact 0.7
     title 'openntpd should be present'
     desc 'Ensure openntpd executable and configuration are present'
@@ -135,12 +140,20 @@ elsif ntp_package.to_s == 'openntpd'
     describe service(ntp_service.to_s) do
       it { should be_enabled }
       it { should be_installed }
-      it { should be_running }
     end
     describe file(ntp_bin.to_s) do
       it { should be_file }
       it { should be_executable }
       it { should be_owned_by 'root' }
+    end
+  end
+  control 'ntp-1.3' do
+    impact 0.7
+    title 'openntpd should be running'
+    desc 'Ensure openntpd is running'
+    only_if { !container_execution }
+    describe service(ntp_service.to_s) do
+      it { should be_running }
     end
   end
 elsif ntp_package.to_s == 'chrony'
@@ -162,14 +175,19 @@ elsif ntp_package.to_s == 'chrony'
       it { should be_enabled }
       it { should be_installed }
     end
-    describe service(ntp_service.to_s) do
-      only_if { !container_execution }
-      it { should be_running }
-    end
     describe file(ntp_bin.to_s) do
       it { should be_file }
       it { should be_executable }
       it { should be_owned_by 'root' }
+    end
+  end
+  control 'ntp-1.3' do
+    impact 0.7
+    title 'chronyd should be running'
+    desc 'Ensure chronyd is running'
+    only_if { !container_execution }
+    describe service(ntp_service.to_s) do
+      it { should be_running }
     end
   end
 end
