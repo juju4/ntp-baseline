@@ -12,6 +12,18 @@ ntp_servers = attribute(
   description: 'list of ntp servers to use'
 )
 
+if os.redhat? && os.release == '8'
+  ntp_package = 'chrony'
+  ntp_service = 'chronyd'
+  ntp_bin = '/usr/sbin/chronyd'
+  ntp_conf = '/etc/chrony.conf'
+  ntp_user = 'chrony'
+  ntp_drift = '/var/lib/chrony/drift'
+  ntp_drift_mode = '0640'
+  ntp_drift_user = 'chrony'
+end
+end
+
 if ntp_package.to_s == 'ntp'
   ntp_service = 'ntpd'
   ntp_bin = '/usr/sbin/ntpd'
@@ -124,6 +136,32 @@ elsif ntp_package.to_s == 'openntpd'
       it { should be_owned_by 'root' }
     end
   end
+elsif ntp_package.to_s == 'chrony'
+  control 'ntp-1.2' do
+    impact 0.7
+    title 'chrony should be present'
+    desc 'Ensure chronyd executable and configuration are present'
+    describe file(ntp_conf.to_s) do
+      it { should be_file }
+      its('content') { should match(/^local stratum/) }
+      ntp_servers.each do |server|
+        its('content') { should match(/^server #{server}/) }
+      end
+    end
+    describe package(ntp_package.to_s) do
+      it { should be_installed }
+    end
+    describe service(ntp_service.to_s) do
+      it { should be_enabled }
+      it { should be_installed }
+      it { should be_running }
+    end
+    describe file(ntp_bin.to_s) do
+      it { should be_file }
+      it { should be_executable }
+      it { should be_owned_by 'root' }
+    end
+  end
 end
 
 control 'ntp-2.0' do
@@ -133,6 +171,24 @@ control 'ntp-2.0' do
   if ntp_package.to_s == 'ntp'
     describe command('ntpstat') do
       its('stdout') { should match 'synchronised to' }
+      its('stderr') { should eq '' }
+      its('exit_status') { should eq 0 }
+    end
+    describe command('timedatectl status') do
+      its('stdout') { should match 'NTP enabled: yes' }
+      its('stdout') { should match 'NTP synchronized: yes' }
+      its('stderr') { should eq '' }
+      its('exit_status') { should eq 0 }
+    end
+  if ntp_package.to_s == 'chrony'
+    describe command('ntpstat') do
+      its('stdout') { should match 'synchronised to' }
+      its('stderr') { should eq '' }
+      its('exit_status') { should eq 0 }
+    end
+    describe command('chronyc -n tracking') do
+      its('stdout') { should match 'Reference ID' }
+      its('stdout') { should match 'Leap status     : Normal' }
       its('stderr') { should eq '' }
       its('exit_status') { should eq 0 }
     end
