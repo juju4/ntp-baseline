@@ -13,7 +13,7 @@ ntp_servers = attribute(
 )
 ## FIXME! always return false
 container_execution = begin
-                        virtualization.role == 'guest' && virtualization.system =~ /^(lxc|docker)$/
+                        virtualization.role == 'guest' && virtualization.system =~ /^(lxd|docker)$/
                       rescue NoMethodError
                         false
                       end
