@@ -11,6 +11,7 @@ ntp_servers = attribute(
   ],
   description: 'list of ntp servers to use'
 )
+## FIXME! always return false
 container_execution = begin
                         virtualization.role == 'guest' && virtualization.system =~ /^(lxc|docker)$/
                       rescue NoMethodError
@@ -151,7 +152,6 @@ elsif ntp_package.to_s == 'openntpd'
     impact 0.7
     title 'openntpd should be running'
     desc 'Ensure openntpd is running'
-    only_if { !container_execution }
     describe service(ntp_service.to_s) do
       it { should be_running }
     end
@@ -247,14 +247,30 @@ elsif ntp_package.to_s == 'openntpd'
   end
 end
 
-control 'ntp-2.0' do
-  impact 0.7
-  title 'ntpd should be running'
-  desc 'Ensure ntpd is running'
-  only_if { !container_execution }
-  describe processes(ntp_service.to_s) do
-    its('users') { should eq [ntp_user.to_s] }
-    its('list.length') { should eq 1 }
+if ntp_package.to_s == 'openntpd'
+  control 'ntp-2.0' do
+    impact 0.7
+    title 'openntpd should be running'
+    desc 'Ensure openntpd is running'
+    describe processes('openntpd') do
+      its('users') { should eq 'root' }
+      its('list.length') { should eq 1 }
+    end
+    describe processes('ntpd') do
+      its('users') { should eq 'ntpd' }
+      its('list.length') { should eq 2 }
+    end
+  end
+else
+  control 'ntp-2.0' do
+    impact 0.7
+    title 'ntpd should be running'
+    desc 'Ensure ntpd is running'
+    only_if { !container_execution }
+    describe processes(ntp_service.to_s) do
+      its('users') { should eq [ntp_user.to_s] }
+      its('list.length') { should eq 1 }
+    end
   end
 end
 
