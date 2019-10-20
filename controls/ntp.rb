@@ -179,7 +179,7 @@ control 'ntp-2.0' do
       its('stderr') { should eq '' }
       its('exit_status') { should eq 0 }
     end
-  if ntp_package.to_s == 'chrony'
+  elsif ntp_package.to_s == 'chrony'
     describe command('ntpstat') do
       its('stdout') { should match 'synchronised to' }
       its('stderr') { should eq '' }
