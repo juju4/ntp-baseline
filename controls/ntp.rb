@@ -11,6 +11,11 @@ ntp_servers = attribute(
   ],
   description: 'list of ntp servers to use'
 )
+container_execution = begin
+                        virtualization.role == 'guest' && virtualization.system =~ /^(lxc|docker)$/
+                      rescue NoMethodError
+                        false
+                      end
 
 if os.redhat? && os.release.match(/^8\./)
   ntp_package = 'chrony'
@@ -101,6 +106,9 @@ elsif ntp_package.to_s == 'ntp'
     describe service(ntp_service.to_s) do
       it { should be_enabled }
       it { should be_installed }
+    end
+    describe service(ntp_service.to_s) do
+      only_if { !container_execution }
       it { should be_running }
     end
     describe file(ntp_bin.to_s) do
@@ -153,6 +161,9 @@ elsif ntp_package.to_s == 'chrony'
     describe service(ntp_service.to_s) do
       it { should be_enabled }
       it { should be_installed }
+    end
+    describe service(ntp_service.to_s) do
+      only_if { !container_execution }
       it { should be_running }
     end
     describe file(ntp_bin.to_s) do
@@ -168,6 +179,7 @@ if ntp_package.to_s == 'ntp'
     impact 0.7
     title 'ntpd configuration should be valid'
     desc 'Ensure ntpd configuration is correct'
+    only_if { !container_execution }
     describe command('ntpstat') do
       its('stdout') { should match 'synchronised to' }
       its('stderr') { should eq '' }
@@ -185,6 +197,7 @@ elsif ntp_package.to_s == 'chrony'
     impact 0.7
     title 'chrony configuration should be valid'
     desc 'Ensure chrony configuration is correct'
+    only_if { !container_execution }
     describe command('ntpstat') do
       its('stdout') { should match 'synchronised to' }
       its('stderr') { should eq '' }
@@ -210,7 +223,7 @@ elsif ntp_package.to_s == 'openntpd'
     desc 'Ensure opentpd configuration is correct'
     describe command("#{ntp_bin} -n") do
       its('stdout') { should eq '' }
-      its('stderr') { should eq 'configuration OK' }
+      its('stderr') { should match(/configuration OK/) }
       its('exit_status') { should eq 0 }
     end
   end
@@ -220,7 +233,7 @@ control 'ntp-2.0' do
   impact 0.7
   title 'ntpd should be running'
   desc 'Ensure ntpd is running'
-  only_if { !(virtualization.role == 'guest' && (virtualization.system == 'docker' || virtualization.system == 'lxd')) }
+  only_if { !container_execution }
   describe processes(ntp_service.to_s) do
     its('users') { should eq [ntp_user.to_s] }
     its('list.length') { should eq 1 }
@@ -231,7 +244,7 @@ control 'ntp-3.0' do
   impact 0.7
   title 'ntpd should have drift file'
   desc 'Ensure ntpd drift file is present'
-  only_if { !(virtualization.role == 'guest' && (virtualization.system == 'docker' || virtualization.system == 'lxd')) }
+  only_if { !container_execution }
   describe file(ntp_drift.to_s) do
     it { should be_file }
     it { should be_owned_by ntp_drift_user.to_s }
@@ -243,7 +256,7 @@ control 'ntp-4.0' do
   impact 0.7
   title 'ntpd updated drift files'
   desc 'Ensure ntpd drift file is updated and less than 8h in the past'
-  only_if { !(virtualization.role == 'guest' && (virtualization.system == 'docker' || virtualization.system == 'lxd')) }
+  only_if { !container_execution }
   describe file(ntp_drift.to_s).mtime.to_i do
     it { should <= Time.now.to_i }
     it { should >= Time.now.to_i - 28800 }
