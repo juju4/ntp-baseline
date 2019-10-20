@@ -22,7 +22,6 @@ if os.redhat? && os.release == '8'
   ntp_drift_mode = '0640'
   ntp_drift_user = 'chrony'
 end
-end
 
 if ntp_package.to_s == 'ntp'
   ntp_service = 'ntpd'
