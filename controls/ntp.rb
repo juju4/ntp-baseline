@@ -3,11 +3,11 @@
 # copyright: 2015, The Authors
 # license: All rights reserved
 
-ntp_package = attribute('ntp_package', default: 'openntpd', description: 'Check which ntp package is used: ntpd, openntpd...')
-ntp_servers = attribute(
+ntp_package = input('ntp_package', value: 'openntpd', description: 'Check which ntp package is used: ntpd, openntpd...')
+ntp_servers = input(
   'ntp_servers',
-  default: [
-    'pool.ntp.org'
+  value: [
+    'pool.ntp.org',
   ],
   description: 'list of ntp servers to use'
 )
