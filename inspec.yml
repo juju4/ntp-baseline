@@ -1,4 +1,4 @@
-name: ntp
+name: ntp-baseline
 title: NTPd baseline - InSpec Profile
 maintainer: juju4
 copyright: juju4
